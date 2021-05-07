@@ -14,8 +14,12 @@ const expect = chai.expect;
 contract('Pisi Token test', async (accounts) => {
   const [deployerAccount, recipient, anotherAccount] = accounts;
 
+  beforeEach(async () => {
+    this.pisiToken = await PisiToken.new(10032019);
+  });
+
   it('All tokens should be in my account', async () => {
-    let instance = await PisiToken.deployed();
+    let instance = this.pisiToken;
     let totalSupply = await instance.totalSupply();
     expect(
       instance.balanceOf(deployerAccount)
@@ -24,7 +28,7 @@ contract('Pisi Token test', async (accounts) => {
 
   it('Is possible to send tokens between accounts', async () => {
     const sendTokens = 1;
-    let instance = await PisiToken.deployed();
+    let instance = this.pisiToken;
     let totalSupply = await instance.totalSupply();
     expect(
       instance.balanceOf(deployerAccount)
@@ -39,7 +43,7 @@ contract('Pisi Token test', async (accounts) => {
   });
 
   it('Is not possible to send more tokens than available in total', async () => {
-    let instance = await PisiToken.deployed();
+    let instance = this.pisiToken;
     let balanceOfDeployer = await instance.balanceOf(deployerAccount);
 
     expect(instance.transfer(recipient, new BN(balanceOfDeployer + 1))).to
