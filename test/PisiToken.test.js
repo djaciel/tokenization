@@ -11,11 +11,13 @@ chai.use(chaiAsPromised);
 
 const expect = chai.expect;
 
+require('dotenv').config({ path: '../.env' });
+
 contract('Pisi Token test', async (accounts) => {
   const [deployerAccount, recipient, anotherAccount] = accounts;
 
   beforeEach(async () => {
-    this.pisiToken = await PisiToken.new(10032019);
+    this.pisiToken = await PisiToken.new(process.env.INITIAL_TOKENS);
   });
 
   it('All tokens should be in my account', async () => {
