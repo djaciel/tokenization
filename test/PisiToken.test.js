@@ -1,13 +1,7 @@
 const PisiToken = artifacts.require('PisiToken');
 
-const { assert } = require('chai');
-const chai = require('chai');
+const chai = require('./setupChai.js');
 const BN = web3.utils.BN;
-const chaiBN = require('chai-bn')(BN);
-chai.use(chaiBN);
-
-const chaiAsPromised = require('chai-as-promised');
-chai.use(chaiAsPromised);
 
 const expect = chai.expect;
 
@@ -23,7 +17,7 @@ contract('Pisi Token test', async (accounts) => {
   it('All tokens should be in my account', async () => {
     let instance = this.pisiToken;
     let totalSupply = await instance.totalSupply();
-    expect(
+    return expect(
       instance.balanceOf(deployerAccount)
     ).to.eventually.be.a.bignumber.equal(totalSupply);
   });
@@ -39,9 +33,9 @@ contract('Pisi Token test', async (accounts) => {
     expect(
       instance.balanceOf(deployerAccount)
     ).to.eventually.be.a.bignumber.equal(totalSupply.sub(new BN(sendTokens)));
-    expect(instance.balanceOf(recipient)).to.eventually.be.a.bignumber.equal(
-      new BN(sendTokens)
-    );
+    return expect(
+      instance.balanceOf(recipient)
+    ).to.eventually.be.a.bignumber.equal(new BN(sendTokens));
   });
 
   it('Is not possible to send more tokens than available in total', async () => {
@@ -51,7 +45,7 @@ contract('Pisi Token test', async (accounts) => {
     expect(instance.transfer(recipient, new BN(balanceOfDeployer + 1))).to
       .eventually.be.rejected;
 
-    expect(
+    return expect(
       instance.balanceOf(deployerAccount)
     ).to.eventually.be.a.bignumber.equal(balanceOfDeployer);
   });
