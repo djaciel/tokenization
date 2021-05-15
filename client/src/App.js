@@ -7,7 +7,12 @@ import getWeb3 from './getWeb3';
 import './App.css';
 
 class App extends Component {
-  state = { loaded: false, kycAddress: '', tokenSaleAddress: '' };
+  state = {
+    loaded: false,
+    kycAddress: '',
+    tokenSaleAddress: '',
+    userTokens: 0,
+  };
 
   componentDidMount = async () => {
     try {
@@ -32,16 +37,42 @@ class App extends Component {
         Kyc.networks[this.networkId] && Kyc.networks[this.networkId].address
       );
 
-      this.setState({
-        loaded: true,
-        tokenSaleAddress: PisiSale.networks[this.networkId].address,
-      });
+      this.listenToTokenTransfer();
+      this.setState(
+        {
+          loaded: true,
+          tokenSaleAddress: PisiSale.networks[this.networkId].address,
+        },
+        this.updateUserTokens
+      );
     } catch (error) {
       alert(
         `Failed to load web3, accounts, or contract. Check console for details.`
       );
       console.error(error);
     }
+  };
+
+  updateUserTokens = async () => {
+    let userTokens = await this.pisiTokenInstance.methods
+      .balanceOf(this.accounts[0])
+      .call();
+    this.setState({
+      userTokens: userTokens,
+    });
+  };
+
+  listenToTokenTransfer = () => {
+    this.pisiTokenInstance.events
+      .Transfer({ to: this.accounts[0] })
+      .on('data', this.updateUserTokens);
+  };
+
+  handleBuyTokens = async () => {
+    await this.pisiSaleInstance.methods.buyTokens(this.accounts[0]).send({
+      from: this.accounts[0],
+      value: this.web3.utils.toWei('1', 'wei'),
+    });
   };
 
   handleInputChange = (event) => {
@@ -84,6 +115,10 @@ class App extends Component {
           If you want to buy tokens, send Wei to this address:{' '}
           {this.state.tokenSaleAddress}
         </p>
+        <p>You currently have: {this.state.userTokens}</p>
+        <button type="button" onClick={this.handleBuyTokens}>
+          Buy more PISI tokens
+        </button>
       </div>
     );
   }
