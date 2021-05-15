@@ -115,7 +115,7 @@ class App extends Component {
           If you want to buy tokens, send Wei to this address:{' '}
           {this.state.tokenSaleAddress}
         </p>
-        <p>You currently have: {this.state.userTokens}</p>
+        <p>You currently have: {this.state.userTokens} PISI Tokens</p>
         <button type="button" onClick={this.handleBuyTokens}>
           Buy more PISI tokens
         </button>
