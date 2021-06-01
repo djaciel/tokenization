@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PisiToken from './contracts/PisiToken.json';
 import PisiSale from './contracts/PisiSale.json';
 import Kyc from './contracts/Kyc.json';
+import Exchange from './contracts/Exchange.json';
 import getWeb3 from './getWeb3';
 
 import './App.css';
@@ -18,7 +19,7 @@ class App extends Component {
     try {
       this.web3 = await getWeb3();
       this.accounts = await this.web3.eth.getAccounts();
-      this.networkId = await this.web3.eth.net.getId();
+      this.networkId = '97'; //await this.web3.eth.net.getId();
 
       this.pisiTokenInstance = new this.web3.eth.Contract(
         PisiToken.abi,
@@ -36,6 +37,14 @@ class App extends Component {
         Kyc.abi,
         Kyc.networks[this.networkId] && Kyc.networks[this.networkId].address
       );
+
+      this.exchangeInstance = new this.web3.eth.Contract(
+        Exchange.abi,
+        Exchange.networks[this.networkId] &&
+          Exchange.networks[this.networkId].address
+      );
+
+      console.log(this.kycInstance, this.exchangeInstance);
 
       this.listenToTokenTransfer();
       this.setState(
@@ -91,6 +100,23 @@ class App extends Component {
     alert(`KYC for ${this.state.kycAddress} is completed`);
   };
 
+  handleExchangeContract = async () => {
+    let result = await this.exchangeInstance.methods
+      .getEstimatedETHforBUSD('1000000000000000000')
+      .call();
+    console.log(result);
+  };
+
+  handleUseExchangeContract = async () => {
+    let result = await this.exchangeInstance.methods
+      .convertEthToBusd2(this.web3.utils.toWei('0', 'ether'))
+      .send({
+        from: this.accounts[0],
+        value: this.web3.utils.toWei('0.2', 'ether'),
+      });
+    console.log(result);
+  };
+
   render() {
     if (!this.state.loaded) {
       return <div>Loading Web3, accounts, and contract..</div>;
@@ -118,6 +144,12 @@ class App extends Component {
         <p>You currently have: {this.state.userTokens} PISI Tokens</p>
         <button type="button" onClick={this.handleBuyTokens}>
           Buy more PISI tokens
+        </button>
+        <button type="button" onClick={this.handleExchangeContract}>
+          Use echange contract
+        </button>
+        <button type="button" onClick={this.handleUseExchangeContract}>
+          Use echange contract to buy
         </button>
       </div>
     );

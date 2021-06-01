@@ -9,7 +9,7 @@ module.exports = {
   contracts_build_directory: path.join(__dirname, 'client/src/contracts'),
   networks: {
     develop: {
-      port: 7545,
+      port: 8545,
     },
     ganache_local: {
       provider: function () {
@@ -40,6 +40,16 @@ module.exports = {
         );
       },
       network_id: 3,
+    },
+    bsc_testnet: {
+      provider: function () {
+        return new HDWalletProvider(
+          process.env.MNEMONIC,
+          'https://data-seed-prebsc-2-s1.binance.org:8545/',
+          AccountIndex
+        );
+      },
+      network_id: 97,
     },
   },
   compilers: {
