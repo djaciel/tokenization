@@ -3,6 +3,7 @@ import PisiToken from './contracts/PisiToken.json';
 import PisiSale from './contracts/PisiSale.json';
 import Kyc from './contracts/Kyc.json';
 import Exchange from './contracts/Exchange.json';
+import FlashLoan from './contracts/FlashLoan.json';
 import getWeb3 from './getWeb3';
 
 import './App.css';
@@ -23,14 +24,12 @@ class App extends Component {
 
       this.pisiTokenInstance = new this.web3.eth.Contract(
         PisiToken.abi,
-        PisiToken.networks[this.networkId] &&
-          PisiToken.networks[this.networkId].address
+        PisiToken.networks[this.networkId] && PisiToken.networks[this.networkId].address
       );
 
       this.pisiSaleInstance = new this.web3.eth.Contract(
         PisiSale.abi,
-        PisiSale.networks[this.networkId] &&
-          PisiSale.networks[this.networkId].address
+        PisiSale.networks[this.networkId] && PisiSale.networks[this.networkId].address
       );
 
       this.kycInstance = new this.web3.eth.Contract(
@@ -40,8 +39,12 @@ class App extends Component {
 
       this.exchangeInstance = new this.web3.eth.Contract(
         Exchange.abi,
-        Exchange.networks[this.networkId] &&
-          Exchange.networks[this.networkId].address
+        Exchange.networks[this.networkId] && Exchange.networks[this.networkId].address
+      );
+
+      this.flashLoanInstance = new this.web3.eth.Contract(
+        FlashLoan.abi,
+        FlashLoan.networks[this.networkId] && FlashLoan.networks[this.networkId].address
       );
 
       console.log(this.kycInstance, this.exchangeInstance);
@@ -55,9 +58,7 @@ class App extends Component {
         this.updateUserTokens
       );
     } catch (error) {
-      alert(
-        `Failed to load web3, accounts, or contract. Check console for details.`
-      );
+      alert(`Failed to load web3, accounts, or contract. Check console for details.`);
       console.error(error);
     }
   };
@@ -117,6 +118,39 @@ class App extends Component {
     console.log(result);
   };
 
+  // handleUseMaxMinEthToken = async () => {
+  //   let result = await this.flashLoanInstance.methods
+  //     .maxMinEthToken2(
+  //       this.web3.utils.toWei('0', 'ether'),
+  //       '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+  //       '0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47',
+  //       Math.floor(Date.now() / 1000) + 60 * 20
+  //     )
+  //     .send({
+  //       from: this.accounts[0],
+  //       value: this.web3.utils.toWei('0', 'ether'),
+  //     });
+  //   console.log(result);
+  // };
+
+  handleUseMaxMinEthToken = async () => {
+    let result = await this.flashLoanInstance.methods
+      .maxMinEthToken(
+        '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
+        this.web3.utils.toWei('0', 'ether'),
+        '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
+        this.web3.utils.toWei('0', 'ether'),
+        '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+        '0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47',
+        Math.floor(Date.now() / 1000) + 60 * 20
+      )
+      .send({
+        from: this.accounts[0],
+        value: this.web3.utils.toWei('0', 'ether'),
+      });
+    console.log(result);
+  };
+
   render() {
     if (!this.state.loaded) {
       return <div>Loading Web3, accounts, and contract..</div>;
@@ -151,6 +185,11 @@ class App extends Component {
         <button type="button" onClick={this.handleUseExchangeContract}>
           Use echange contract to buy
         </button>
+        <div>
+          <button type="button" onClick={this.handleUseMaxMinEthToken}>
+            MaxMinEthToken
+          </button>
+        </div>
       </div>
     );
   }
