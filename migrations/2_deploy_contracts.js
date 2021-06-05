@@ -1,14 +1,10 @@
-const PisiToken = artifacts.require('PisiToken.sol');
-const Kyc = artifacts.require('Kyc.sol');
-const PisiSale = artifacts.require('PisiSale.sol');
-const Exchange = artifacts.require('Exchange.sol');
-const FlashLoan = artifacts.require('FlashLoan.sol');
+const Arbitrage = artifacts.require('Arbitrage.sol');
 require('dotenv').config({ path: '../.env' });
 
 module.exports = async function (deployer) {
   const accounts = await web3.eth.getAccounts();
 
-  await deployer.deploy(FlashLoan);
+  await deployer.deploy(Arbitrage);
   //await deployer.deploy(PisiToken, process.env.INITIAL_TOKENS);
   //await deployer.deploy(Exchange);
   //await deployer.deploy(Kyc);

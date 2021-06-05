@@ -4,6 +4,7 @@ import PisiSale from './contracts/PisiSale.json';
 import Kyc from './contracts/Kyc.json';
 import Exchange from './contracts/Exchange.json';
 import FlashLoan from './contracts/FlashLoan.json';
+import Arbitrage from './contracts/Arbitrage.json';
 import getWeb3 from './getWeb3';
 
 import './App.css';
@@ -45,6 +46,11 @@ class App extends Component {
       this.flashLoanInstance = new this.web3.eth.Contract(
         FlashLoan.abi,
         FlashLoan.networks[this.networkId] && FlashLoan.networks[this.networkId].address
+      );
+
+      this.arbitrageInstance = new this.web3.eth.Contract(
+        Arbitrage.abi,
+        Arbitrage.networks[this.networkId] && Arbitrage.networks[this.networkId].address
       );
 
       console.log(this.kycInstance, this.exchangeInstance);
@@ -113,32 +119,29 @@ class App extends Component {
       .convertEthToBusd2(this.web3.utils.toWei('0', 'ether'))
       .send({
         from: this.accounts[0],
-        value: this.web3.utils.toWei('0.2', 'ether'),
+        value: this.web3.utils.toWei('0.01', 'ether'),
       });
     console.log(result);
   };
 
-  // handleUseMaxMinEthToken = async () => {
-  //   let result = await this.flashLoanInstance.methods
-  //     .maxMinEthToken2(
-  //       this.web3.utils.toWei('0', 'ether'),
-  //       '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
-  //       '0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47',
-  //       Math.floor(Date.now() / 1000) + 60 * 20
-  //     )
-  //     .send({
-  //       from: this.accounts[0],
-  //       value: this.web3.utils.toWei('0', 'ether'),
-  //     });
-  //   console.log(result);
-  // };
+  handleUseArbitrage = async () => {
+    let result = await this.arbitrageInstance.methods
+      .startArbitrage(
+        '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+        '0xed24fc36d5ee211ea25a80239fb8c4cfd80f12ee',
+        this.web3.utils.toWei('0.1', 'ether'),
+        this.web3.utils.toWei('0', 'ether')
+      )
+      .send({
+        from: this.accounts[0],
+        value: this.web3.utils.toWei('0', 'ether'),
+      });
+    console.log(result);
+  };
 
   handleUseMaxMinEthToken = async () => {
     let result = await this.flashLoanInstance.methods
-      .maxMinEthToken(
-        '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
-        this.web3.utils.toWei('0', 'ether'),
-        '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
+      .maxMinEthToken2(
         this.web3.utils.toWei('0', 'ether'),
         '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
         '0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47',
@@ -150,6 +153,24 @@ class App extends Component {
       });
     console.log(result);
   };
+
+  // handleUseMaxMinEthToken = async () => {
+  //   let result = await this.flashLoanInstance.methods
+  //     .maxMinEthToken(
+  //       '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
+  //       this.web3.utils.toWei('0', 'ether'),
+  //       '0xD99D1c33F9fC3444f8101754aBC46c52416550D1',
+  //       this.web3.utils.toWei('0', 'ether'),
+  //       '0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd',
+  //       '0x8301F2213c0eeD49a7E28Ae4c3e91722919B8B47',
+  //       Math.floor(Date.now() / 1000) + 60 * 20
+  //     )
+  //     .send({
+  //       from: this.accounts[0],
+  //       value: this.web3.utils.toWei('0', 'ether'),
+  //     });
+  //   console.log(result);
+  // };
 
   render() {
     if (!this.state.loaded) {
@@ -188,6 +209,11 @@ class App extends Component {
         <div>
           <button type="button" onClick={this.handleUseMaxMinEthToken}>
             MaxMinEthToken
+          </button>
+        </div>
+        <div>
+          <button type="button" onClick={this.handleUseArbitrage}>
+            Arbitrage
           </button>
         </div>
       </div>
